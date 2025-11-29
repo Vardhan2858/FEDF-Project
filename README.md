@@ -1,4 +1,4 @@
-# Student Feedback and Evaluation System (KLUIRP)
+# Student Feedback and Evaluation System 
 
 A web-based React application designed to collect, analyze, and present student feedback on courses, instructors, and institutional services. The system enhances communication between students and educational authorities while promoting data-driven improvement in academic quality.
 
