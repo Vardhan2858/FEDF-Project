@@ -1,12 +1,61 @@
-# React + Vite
+# Student Feedback and Evaluation System (KLUIRP)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based React application designed to collect, analyze, and present student feedback on courses, instructors, and institutional services. The system enhances communication between students and educational authorities while promoting data-driven improvement in academic quality.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+### Student
+- Login authentication
+- Submit feedback for courses and instructors
+- View aggregated feedback insights
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Administrator (Teacher/Institution)
+- Create and publish feedback forms
+- Review feedback responses in detail
+- Analyze performance through metrics and trends
+
+---
+
+## Technology Stack
+
+| Category | Technology |
+|---------|------------|
+| Frontend Framework | React (Vite) |
+| Styling | CSS |
+| State Management | React Context API |
+| Icons/Assets | Public folder resources |
+
+---
+KLUERP/
+├── public/
+│ ├── image.png
+│ ├── login_image.jpg
+│ └── vite.svg
+│
+├── src/
+│ ├── assets/
+│ ├── components/
+│ │ ├── admin/
+│ │ ├── student/
+│ │ ├── Child1.jsx
+│ │ ├── Child2.jsx
+│ │ ├── Home.jsx
+│ │ ├── Login.jsx
+│ │ ├── Navigation.jsx
+│ │ ├── Sec.jsx
+│ │ └── Studentregistration.jsx
+│ │
+│ ├── context/
+│ ├── styles/
+│ ├── utils/
+│ ├── App.css
+│ ├── App.jsx
+│ └── main.jsx
+│
+├── .gitignore
+├── eslint.config.js
+└── index.html
+## Project Structure
+
