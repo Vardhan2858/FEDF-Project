@@ -14,8 +14,14 @@ const Login = () => {
   });
 
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [_failedAttempts, setFailedAttempts] = useState(0);
+  const [lockUntil, setLockUntil] = useState(0);
+  // Demo credentials (replace with real auth in production)
+  const STUDENT_PASSWORD = 'vardhan';
+  const TEACHER_PASSWORD = 'Faculty';
   useEffect(() => {
     // Clear error when username changes
     if (error && loginData.username.trim().length > 1) setError('');
@@ -32,7 +38,23 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    // clear field-specific errors while user edits
+    if (name === 'username' && error) setError('');
+    if (name === 'password' && passwordError) setPasswordError('');
   };
+
+  // Track failed attempts and enforce a short client-side lockout after repeated failures
+  const recordFailedAttempt = () => {
+    setFailedAttempts(prev => {
+      const next = prev + 1;
+      if (next >= 5) {
+        // Lock for 30 seconds
+        setLockUntil(Date.now() + 30_000);
+      }
+      return next;
+    });
+  };
+
 
   const validate = () => {
     if (!loginData.username || loginData.username.trim().length < 2) {
@@ -40,7 +62,7 @@ const Login = () => {
       return false;
     }
     if (!loginData.password || loginData.password.length < 6) {
-      setError('Please enter a password (at least 6 characters).');
+      setPasswordError('Please enter a password (at least 6 characters).');
       return false;
     }
     return true;
@@ -50,7 +72,16 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    if (!validate()) return;
+    if (lockUntil && Date.now() < lockUntil) {
+      const seconds = Math.ceil((lockUntil - Date.now()) / 1000);
+      setError(`Too many attempts. Try again in ${seconds} second${seconds > 1 ? 's' : ''}.`);
+      return;
+    }
+
+    if (!validate()) {
+      recordFailedAttempt();
+      return;
+    }
 
     setLoading(true);
 
@@ -64,7 +95,39 @@ const Login = () => {
     try {
       // small delay to show loading state in demo
       await new Promise(res => setTimeout(res, 350));
+
+      // Simple credential check for demo purposes
+      const provided = loginData.password;
+      if (loginData.role === 'student' && provided !== STUDENT_PASSWORD) {
+        recordFailedAttempt();
+        setPasswordError('Wrong password');
+        setLoading(false);
+        return;
+      }
+      if (loginData.role === 'admin' && provided !== TEACHER_PASSWORD) {
+        recordFailedAttempt();
+        setPasswordError('Wrong password');
+        setLoading(false);
+        return;
+      }
+
+      // Reset password in state immediately after using it transiently.
+      setLoginData(prev => ({ ...prev, password: '' }));
+
+      // setUser keeps only non-secret user info.
       setUser(newUser);
+
+      // Show a simple role-based alert to confirm sign-in
+      try {
+        const roleLabel = newUser.role === 'admin' ? 'Teacher' : 'Student';
+        // Show a concise success message
+        window.alert(`${roleLabel} login successful`);
+      } catch (e) {
+        // ignore alert failures in strict environments but log for debugging
+        // console.debug is low-noise for dev use
+        console.debug(e);
+      }
+
       if (loginData.remember) {
         try {
           localStorage.setItem('kluerp_user', JSON.stringify(newUser));
@@ -72,6 +135,16 @@ const Login = () => {
           // ignore storage failures in restricted environments
         }
       }
+
+      // reset failed attempts on success
+      setFailedAttempts(0);
+      setLockUntil(0);
+    } catch (e) {
+      // On error treat as a failed attempt
+      // log and record the failure
+      console.error(e);
+      recordFailedAttempt();
+      setError('Sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -112,10 +185,9 @@ const Login = () => {
                 value={loginData.password}
                 onChange={handleInputChange}
                 placeholder="Enter your password"
-                aria-describedby="password-help"
                 autoComplete="current-password"
               />
-              <button
+                <button
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(s => !s)}
@@ -125,7 +197,10 @@ const Login = () => {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            <div id="password-help" className="hint">Passwords are not stored in this demo.</div>
+              {passwordError && (
+                <div className="field-error" role="alert">{passwordError}</div>
+              )}
+          
           </div>
 
           <div className="form-row">

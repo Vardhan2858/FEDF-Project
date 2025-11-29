@@ -5,6 +5,6 @@ import Studentregistration from './components/Studentregistration.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Studentregistration />
+    <App/>
   </StrictMode>,
 )

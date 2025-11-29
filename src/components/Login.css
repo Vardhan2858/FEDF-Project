@@ -73,6 +73,17 @@
 }
 .password-toggle:hover{ background:rgba(15,23,42,0.03) }
 
+.lockout { color: #8b5cf6; font-size:0.95rem; margin-top:0.5rem }
+
+.field-error{
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-top: 0.45rem;
+}
+
 .login-form input[type="text"]:focus,
 .login-form select:focus{
   box-shadow:0 0 0 3px rgba(37,99,235,0.08);
