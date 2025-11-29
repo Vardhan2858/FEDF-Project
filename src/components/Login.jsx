@@ -19,6 +19,11 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [_failedAttempts, setFailedAttempts] = useState(0);
   const [lockUntil, setLockUntil] = useState(0);
+  // Simple client-side arithmetic captcha
+  const [captchaQuestion, setCaptchaQuestion] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState(null);
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
   // Demo credentials (replace with real auth in production)
   const STUDENT_PASSWORD = 'vardhan';
   const TEACHER_PASSWORD = 'Faculty';
@@ -27,10 +32,33 @@ const Login = () => {
     if (error && loginData.username.trim().length > 1) setError('');
   }, [loginData.username, error]);
 
+  // generate initial captcha on mount
+  useEffect(() => {
+    generateCaptcha();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // If user is already logged in, redirect to appropriate dashboard
   if (user) {
     return <Navigate to={user.role === 'admin' ? '/admin' : '/student'} replace />;
   }
+
+  // Captcha helpers
+  const generateCaptcha = (len = 5) => {
+    // generate a numeric captcha code (e.g. '26924')
+    const chars = '0123456789';
+    let code = '';
+    for (let i = 0; i < len; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    setCaptchaQuestion(code);
+    setCaptchaAnswer(code);
+    setCaptchaInput('');
+    setCaptchaError('');
+  };
+
+  const handleCaptchaChange = (e) => {
+    setCaptchaInput(e.target.value);
+    if (captchaError) setCaptchaError('');
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -65,9 +93,20 @@ const Login = () => {
       setPasswordError('Please enter a password (at least 6 characters).');
       return false;
     }
+    // captcha validation
+    if (captchaAnswer !== null) {
+      if (!captchaInput || String(captchaInput).trim() === '') {
+        setCaptchaError('Enter the captcha');
+        return false;
+      }
+        if (String(captchaInput).trim() !== String(captchaAnswer)) {
+        setCaptchaError('Incorrect captcha answer');
+        return false;
+      }
+    }
+
     return true;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -166,10 +205,10 @@ const Login = () => {
               value={loginData.username}
               onChange={handleInputChange}
               placeholder="e.g. Jane Doe"
-              aria-describedby="username-help username-error"
+              aria-describedby="username-error"
               autoComplete="name"
             />
-            <div id="username-help" className="hint">Use the name your school uses for you.</div>
+            
             {error && (
               <div id="username-error" className="error" aria-live="polite">{error}</div>
             )}
@@ -224,16 +263,42 @@ const Login = () => {
             <Link to="/reg" className="link-muted">Register</Link>
           </div>
 
-          <div className="form-row">
-            <button
-              type="submit"
-              className="btn primary"
-              disabled={loading}
-              aria-disabled={loading}
-            >
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
-          </div>
+           <div className="form-row captcha-row">
+             <label htmlFor="captcha">Enter Captcha</label>
+             <div className="captcha-box" role="img" aria-label={`Captcha code ${captchaQuestion}`} onClick={() => generateCaptcha()} title="Click to refresh">
+               {String(captchaQuestion).split('').map((ch, idx) => (
+                 <span key={idx} className="captcha-char">{ch}</span>
+               ))}
+             </div>
+
+             <div className="captcha-input-row">
+               <input
+                 id="captcha"
+                 name="captcha"
+                 type="text"
+                 value={captchaInput}
+                 onChange={handleCaptchaChange}
+                 placeholder="Enter captcha text"
+                 aria-describedby="captcha-error"
+                 inputMode="numeric"
+                 className="captcha-text-input"
+               />
+               <button type="button" className="captcha-refresh" onClick={() => generateCaptcha()} aria-label="Refresh captcha">↻</button>
+             </div>
+
+             {captchaError && <div id="captcha-error" className="field-error" role="alert">{captchaError}</div>}
+           </div>
+
+           <div className="form-row">
+             <button
+               type="submit"
+               className="btn primary"
+               disabled={loading}
+               aria-disabled={loading}
+             >
+               {loading ? 'Signing in…' : 'Sign in'}
+             </button>
+           </div>
         </form>
 
         <section className="demo-instructions" aria-label="Demo instructions">
