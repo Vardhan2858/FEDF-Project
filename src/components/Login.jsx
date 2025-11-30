@@ -239,6 +239,8 @@ const Login = () => {
               {passwordError && (
                 <div className="field-error" role="alert">{passwordError}</div>
               )}
+              {/* Demo credentials: student -> vardhan, teacher/admin -> Faculty */}
+              <div className="hint">For demo: student password: <strong>vardhan</strong> — teacher/admin password: <strong>Faculty</strong></div>
           
           </div>
 
